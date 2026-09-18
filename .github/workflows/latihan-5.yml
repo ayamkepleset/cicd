@@ -16,7 +16,7 @@ jobs:
           sudo apt update -y
           sudo apt install -y sshpass
 
-      - name: Siapkan SSH config (ProxyCommand cloudflared access, tanpa SSH key)
+      - nae: Siapkan SSH config (ProxyCommand cloudflared access, tanpa SSH key)
         env:
           URL_VM: ${{ secrets.URL_VM }}
         run: |

@@ -31,7 +31,7 @@ jobs:
       - name: Salin halaman & gambar dari assets/latihan-4
         run: |
           sudo cp latihan-git-action-dan-runner/assets/latihan-4/index.html /var/www/html/index.html
-          sudo cp latihan-git-action-dan-runner/asset/latihan-4/banner.svg /var/www/html/banner.svg
+          sudo cp latihan-git-action-dan-runner/assets/latihan-4/banner.svg /var/www/html/banner.svg
           sudo sed -i "s/{{NAMA}}/${{ github.event.inputs.nama_siswa }}/" /var/www/html/index.html
 
       - name: Jalankan nginx

@@ -24,4 +24,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hasil-latihan-3
-          path: assets/latihan-3/index.html
+          path: latihan-git-action-dan-runner/assets/latihan-3/index.html

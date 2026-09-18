@@ -8,7 +8,7 @@ on:
       nama_siswa:
         description: 'Awan'
         required: true
-        default: 'Siswa TJKT'
+        default: 'Awan Nathaniel P'
 
 jobs:
   test:

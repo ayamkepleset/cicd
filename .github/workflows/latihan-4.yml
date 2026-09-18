@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       nama_siswa:
-        description: 'Tulis nama kamu'
+        description: 'Awan'
         required: true
         default: 'Siswa TJKT'
 
@@ -30,8 +30,8 @@ jobs:
 
       - name: Salin halaman & gambar dari assets/latihan-4
         run: |
-          sudo cp assets/latihan-4/index.html /var/www/html/index.html
-          sudo cp assets/latihan-4/banner.svg /var/www/html/banner.svg
+          sudo cp assets latihan-git-action-dan-runner/latihan-4/index.html /var/www/html/index.html
+          sudo cp assets latihan-git-action-dan-runner/latihan-4/banner.svg /var/www/html/banner.svg
           sudo sed -i "s/{{NAMA}}/${{ github.event.inputs.nama_siswa }}/" /var/www/html/index.html
 
       - name: Jalankan nginx

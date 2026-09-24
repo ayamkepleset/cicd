@@ -1,12 +1,11 @@
 name: "Skenario 1 - Level 1 - Deploy Static Site"
 
-# Trigger: push ke branch main, hanya jika folder app/ level1 berubah
 on:
   push:
     branches: [ main ]
     paths:
       - 'skenario1-github-actions-vps-proxycommand/level1-static-html/app/**'
-  workflow_dispatch: # Menambahkan fitur pemicu manual tanpa input tambahan
+  workflow_dispatch: 
 
 jobs:
   deploy:
@@ -25,32 +24,42 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update -y && sudo apt-get install -y sshpass
 
-      - name: Siapkan SSH config (ProxyCommand via Cloudflare Access, tanpa SSH key)
+      - name: Siapkan SSH config (ProxyCommand via Cloudflare Access)
         env:
           CF_ACCESS_HOSTNAME: ${{ secrets.CF_ACCESS_HOSTNAME }}
         run: |
           mkdir -p ~/.ssh
-          cat >> ~/.ssh/config <<EOC
+          # Menggunakan tanda kutip 'EOC' agar teks di dalamnya ditulis mentah-mentah (raw) tanpa gangguan interpretasi shell
+          cat >> ~/.ssh/config << 'EOC'
           Host vm-a
-            HostName ${CF_ACCESS_HOSTNAME}
+            HostName ${{ secrets.CF_ACCESS_HOSTNAME }}
             User ${{ secrets.VPS_USERNAME }}
             ProxyCommand cloudflared access ssh --hostname %h
             StrictHostKeyChecking no
             UserKnownHostsFile=/dev/null
           EOC
 
+      # =========================================================================
+      # 🌟 PERUBAHAN UTAMA: Target folder dipindah ke /var/www/html & hapus file bawaan
+      # =========================================================================
       - name: Deploy file statis ke VM-A
         env:
           SSHPASS: ${{ secrets.VPS_PASSWORD }}
         run: |
-          ssh vm-a "sudo mkdir -p /var/www/level1-static && sudo chown \$USER:\$USER /var/www/level1-static"
+          # 1. Hapus file bawaan Nginx dan ubah kepemilikan folder /var/www/html agar bisa diisi file baru
+          sshpass -e ssh -o StrictHostKeyChecking=no vm-a "
+            echo '${SSHPASS}' | sudo -S rm -f /var/www/html/index.nginx-debian.html && \
+            echo '${SSHPASS}' | sudo -S chown -R \$USER:\$USER /var/www/html
+          "
+          
+          # 2. Kirim file index.html dan style.css langsung ke folder /var/www/html/
           sshpass -e scp -o StrictHostKeyChecking=no \
             skenario1-github-actions-vps-proxycommand/level1-static-html/app/index.html \
             skenario1-github-actions-vps-proxycommand/level1-static-html/app/style.css \
-            vm-a:/var/www/level1-static/
+            vm-a:/var/www/html/
 
       - name: Reload Nginx di VM-A
         env:
           SSHPASS: ${{ secrets.VPS_PASSWORD }}
         run: |
-          sshpass -e ssh vm-a "sudo systemctl reload nginx"
+          sshpass -e ssh -o StrictHostKeyChecking=no vm-a "echo '${SSHPASS}' | sudo -S systemctl reload nginx"
